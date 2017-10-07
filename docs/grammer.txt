@@ -1,0 +1,2 @@
+<statement>	:= <select> TOK_SEMI
+<select> 	:= TOK_SELECT 

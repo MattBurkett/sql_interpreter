@@ -1,0 +1,7 @@
+<group_by_clause> := <column> <more_columns>
+
+<column> := TOK_IDENTIFIER
+          | TOK_IDENTIFIER TOK_PERIOD TOK_IDENTIFIER
+
+<more_columns> := null
+                | <column> <more_columns>

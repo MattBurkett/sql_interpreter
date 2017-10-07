@@ -1,0 +1,50 @@
+<where_condition> := <bool_or>
+
+<bool_or> := <bool_and> <bool_or2>
+<bool_or2> := TOK_BOOLOR <bool_and> <bool_or2>
+	    | \0
+
+<bool_and> := <bool_not> <bool_and2>
+<bool_and2> := TOK_BOOL_AND <bool_not> <bool_and2>
+	     | \0
+
+<bool_not> := TOK_BOOL_NOT <bool_not>
+	    | <comparison>
+
+<comparison>  := <pm_opperations> <comparison2>
+<comparison2> := TOK_EQ <pm_opperations> <comparison2>
+	       | TOK_GT <pm_opperations> <comparison2>
+	       | TOK_LT <pm_opperations> <comparison2>
+	       | TOK_GTEQ <pm_opperations> <comparison2>
+	       | TOK_LTEQ <pm_opperations> <comparison2>
+	       | TOK_NOTEQ <pm_opperations> <comparison2>
+	       | TOK_NOTGT <pm_opperations> <comparison2>
+	       | TOK_NOTLT <pm_opperations> <comparison2>
+	       | \0
+
+<pm_opperations> := TOK_PLUS <md_opperations> <pm_opperations2>
+ 		  | TOK_MINUS <md_opperations> <pm_opperations2>
+		  | <md_opperations> <pm_opperations2>
+<pm_opperations2>:= TOK_PLUS <md_opperations> <pm_opperations2>
+		  | TOK_MINUS <md_opperations> <pm_opperations2>
+		  | TOK_BIT_AND <md_opperations> <pm_opperations2>
+		  | TOK_BIT_OR <md_opperations> <pm_opperations2>
+		  | TOK_BIT_XOR <md_opperations> <pm_opperations2>
+		  | \0
+
+
+<md_opperations> := <bit_not> <md_opperations2>
+<md_opperations2> := TOK_ASTERICK <bit_not> <md_opperations2>
+		   | TOK_DIVIDE <bit_not> <md_opperations2>
+		   | TOK_MODULO <bit_not> <md_opperations2>
+		   | \0
+
+<bit_not> := TOK_BIT_NOT <bit_not>
+	   | <base>
+
+<base> := TOK_LPAREN <bool_or> TOK_RPAREN
+	| TOK_IDENTIFIER
+	| TOK_IDENTIFIER TOK_PERIOD TOK_IDENTIFIER
+	| TOK_INTEGER
+	| TOK_DECIMAL
+	| TOK_STRING

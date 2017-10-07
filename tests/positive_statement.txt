@@ -1,0 +1,97 @@
+SELECT *
+FROM products
+WHERE price < 15 AND price > 5
+GROUP BY color
+ORDER BY price;
+
+SELECT field.table
+FROM table
+GROUP BY fild.table
+ORDER BY field.table;
+
+SELECT A, An, Ant
+FROM products;
+
+SELECT *
+FROM students;
+
+SELECT price, a8, Aa09zZ
+FROM books
+WHERE pages = 12;
+
+SELECT price, a8, Aa09zZ
+FROM books
+GROUP BY type;
+
+SELECT price, a8, Aa09zZ
+FROM books
+ORDER BY price;
+
+SELECT price, a8, Aa09zZ
+FROM books
+GROUP BY type
+ORDER BY price;
+
+SELECT price, a8, Aa09zZ
+FROM books
+WHERE pages = 12
+GROUP BY type;
+
+SELECT price, a8, Aa09zZ
+FROM books
+WHERE pages = 12
+ORDER BY price;
+
+SELECT *
+FROM students
+WHERE eye.color = 'blue' AND (hair = 'brown' OR hair = 'blonde')
+GROUP BY student.age
+ORDER BY height;
+
+SELECT *
+FROM table
+WHERE 'blue'='red' AND (9=8 OR (eye.color=blue OR shape>1));
+
+SELECT *
+FROM table
+WHERE(9=8OR(eye.color=blue OR shape>1));
+
+SELECT *
+FROM table
+WHERE x = y AND 1 = 2 OR 'string' = 'cheese' = 8;
+
+SELECT *
+FROM table
+WHERE x + x = y;
+
+SELECT *
+FROM table
+WHERE x + x = y AND 1 = 2;
+
+SELECT *
+FROM table
+WHERE x * x + 2 = y;
+
+SELECT *
+FROM table
+WHERE x + x * 2 = y;
+
+SELECT *
+FROM table
+WHERE x + x = y AND 1 = 2 OR z + 2 != 8;
+
+SELECT *
+FROM table
+WHERE x * x = y AND 1 = 2 OR z * 2 != 8;
+
+SELECT *
+FROM table
+WHERE x + x = y AND 1 = 2 OR 'string' = 'cheese' = 8;
+
+SELECT *
+FROM table
+WHERE y;
+
+SELECT *
+FROM table
+WHERE x + x + x = y AND 1 = 2 OR 'string' = 'cheese' = 8;
