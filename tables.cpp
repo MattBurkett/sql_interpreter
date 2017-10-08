@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <dirent.h>
+#include <string.h>
 #include "tables.h"
 
 table::table()
@@ -9,6 +10,16 @@ table::table()
 table::table(std::string data_file)
 {
 	add_file(data_file);
+}
+
+std::string table::get_name()
+{
+	return table_name;
+}
+
+std::string table::get_name_useable()
+{
+	return table_name.substr(strlen(DATADIR), table_name.length() - strlen(DATADIR) - strlen(DATAEXT));
 }
 
 void table::add_file(std::string data_file)
@@ -83,13 +94,23 @@ void table::add_file(std::string data_file)
 	file_stream.close();
 }
 
+std::vector<std::pair<std::string, table::Type>> table::get_columns()
+{
+	std::vector<std::pair<std::string, table::Type>> columns;
+	for(auto elem : header)
+		columns.push_back( std::pair<std::string, table::Type>(elem.name, elem.type) );
 
+	return columns;
+}
 
 tables::tables()
-{}
+{
+	query_table_index = 0;
+}
 
 tables::tables(const char directory_location[])
 {	
+	query_table_index = 0;
 	std::string line;
 	std::vector<std::string> data_files;
 	DIR *directory = opendir(directory_location);
@@ -111,6 +132,7 @@ tables::tables(const char directory_location[])
 
 tables::tables(std::vector<std::string> data_files)
 {
+	query_table_index = 0;
 	add_table(data_files);
 }
 
@@ -129,3 +151,22 @@ std::vector<table> tables::get_tables()
 {
 	return _tables;
 }
+
+table tables::get_query_table()
+{
+	return _tables[query_table_index];
+}
+
+bool tables::set_query_table(std::string table_name)
+{
+	int i = 0;
+	for(table t : _tables)
+		if(t.get_name_useable() == table_name){
+			query_table_index = i;
+			return true;
+		}
+		else
+			i++;
+	return false;
+}
+

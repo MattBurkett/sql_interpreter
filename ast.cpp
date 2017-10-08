@@ -44,6 +44,11 @@ std::vector<node *> node_branch::get_children()
 	return children;
 }
 
+void node_branch::remove_child(int index)
+{
+	children.erase(children.begin() + index);
+}
+
 /*************************************************************************************************/
 /*                                                                                               */
 /*                                            node_leaf                                          */

@@ -1,5 +1,5 @@
 SELECT *
-FROM products
+FROM Customers
 WHERE CustomerID.Customers < 15 AND Address > 5
 GROUP BY Address.Customers
 ORDER BY CustomerID;

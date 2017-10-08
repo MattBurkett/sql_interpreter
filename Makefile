@@ -1,7 +1,6 @@
-CC = g++
-CFLAGS = -g -Wall
-LDFLAGS= 
-SOURCES=main.cpp lexer.cpp parser.cpp interpreter.cpp ast.cpp tables.cpp visitor.cpp visitor_print.cpp visitor_name_resolution.cpp 
+CXX = g++
+CXXFLAGS = -g
+SOURCES=$(wildcard *.cpp)
 HEADERS=$(SOURCES:.cpp=.h)
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=sql
@@ -12,4 +11,4 @@ clean:
 	rm $(OBJECTS) $(EXECUTABLE)
     
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CXX) $(CFLAGS) $(OBJECTS) -o $@

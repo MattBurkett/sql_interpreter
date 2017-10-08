@@ -35,13 +35,3 @@ public:
 	virtual void visit(group_by_clause* ast_node);
 	virtual void visit(select_statement* ast_node);
 };
-
-class select_resolution
-{
-
-};
-
-class type_check
-{
-
-};

@@ -45,6 +45,7 @@ public:
 	
 	virtual void accept(visitor* v);
 	virtual void add_child(node*) = 0;
+	void remove_child(int index);
 	
 };
 

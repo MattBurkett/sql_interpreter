@@ -3,32 +3,55 @@
 #include "ast.h"
 #include "visitor_name_resolution.h"
 #include "lexemes.h"
+#include <string.h>
+
+name_resolution::name_resolution(tables sql_tables)
+{
+	this->sql_tables = sql_tables;
+}
+
+void name_resolution::visit_static(ast ast_tree, tables sql_tables)
+{
+	name_resolution vis(sql_tables);
+	vis.visitor::visit(ast_tree);
+}
 
 void name_resolution::visit(field_leaf* ast_node)
 {
 	std::vector<std::string> possible_tables;
-	if(ast_node->get_table() == ""){
-		std::cout << "Missing table name: " << ast_node->get_literal() << "\n";
-		for(table t : sql_tables.get_tables())
-			;
-	}
+	if(ast_node->get_token() == TOK_IDENTIFIER && ast_node->get_table() == "")
+		ast_node->add_table( resolve(ast_node->get_literal()) );
 }
 
 void name_resolution::visit(expression_node_leaf* ast_node)
 {
 	std::vector<std::string> possible_tables;
-	if(ast_node->get_token() == TOK_IDENTIFIER && ast_node->get_table() == ""){
-		std::cout << "Missing table name: " << ast_node->get_literal() << "\n";
-		for(table t : sql_tables.get_tables())
-			;
-	}
+	if(ast_node->get_token() == TOK_IDENTIFIER && ast_node->get_table() == "")
+		ast_node->add_table( resolve(ast_node->get_literal()) );
 }
 
-void name_resolution::resolve(select_predicate* select_predicate_node, from_predicate* from_predicate_node, tables sql_tables)
+std::string name_resolution::resolve(std::string unknown_column)
 {
-	if(dynamic_cast<node_leaf *>(select_predicate_node->get_children().front())->get_token() != TOK_ASTERICK)
-		return;
-	auto tables_in_query = from_predicate_node->get_children();
-	for(auto e : tables_in_query)
-		;
+	std::string matching_table = "";
+	table query_table = sql_tables.get_query_table();
+
+	for(auto column : query_table.get_columns())
+		if(unknown_column == column.first)
+			if(matching_table == "")
+				matching_table = query_table.get_name_useable();
+			else{
+				std::cout << "\tAmbiguous column: " << unknown_column 
+					<< "\n\tFirst two conflicts..."
+					<< "\n\t\tTable 1: " << matching_table
+					<< "\n\t\tTable 2: " << query_table.get_name() << "\n";
+				throw("Ambiguous column");
+			}
+
+	if(matching_table == ""){
+		std::cout << "\tUnresolved column: " << unknown_column << "\n";
+		throw("Unresolved column");
+	}
+
+	return matching_table;
+	
 }
