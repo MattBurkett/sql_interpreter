@@ -77,13 +77,17 @@ public:
 
 class field_leaf : public node_leaf
 {
+public:
+	enum Type{t_UNINIT, t_INT, t_CSTRING, t_DOUBLE, t_BOOL};	
 protected:
+	Type type;
 	std::string table;
 public:
 	field_leaf(std::pair<std::string, token_id> p);
 	field_leaf(std::pair<std::string, token_id> p, std::string table);
 	void add_table(std::string table);
 	std::string get_table();
+	void set_type(Type t);
 
 	virtual void accept(visitor* v);
 	virtual void print()

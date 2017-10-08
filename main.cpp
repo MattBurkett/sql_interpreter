@@ -3,9 +3,10 @@
 #include "parser.h"
 #include "tables.h"
 #include "visitor_print.h"
-#include "visitor_name_resolution.h"
 #include "visitor_table_resolution.h"
 #include "visitor_astrick_resolution.h"
+#include "visitor_name_resolution.h"
+#include "visitor_type_resolution.h"
 
 int main(int argc, char* argv[])
 {

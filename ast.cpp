@@ -90,11 +90,13 @@ std::string node_leaf::get_literal()
 
 field_leaf::field_leaf(std::pair<std::string, token_id> p) : node_leaf(p) 
 {
+	type = t_UNINIT;
 	this->table = "";
 }
 
 field_leaf::field_leaf(std::pair<std::string, token_id> p, std::string table) : node_leaf(p)
 {
+	type = t_UNINIT;
 	this->table = table;
 }
 
@@ -113,6 +115,10 @@ void field_leaf::add_table(std::string table)
 	this->table = table;
 }
 
+void field_leaf::set_type(Type t)
+{
+	type = t;
+}
 /*************************************************************************************************/
 /*                                                                                               */
 /*                                     expression_node_branch                                    */
