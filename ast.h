@@ -5,6 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include "lexemes.h"
+#include "defs.h"
 
 // Virtual can be forward declared in the .h file, but the implementation and dereference 
 // has to be in the .cpp to avoid circular references.
@@ -76,9 +77,7 @@ public:
 /*************************************************************************************************/
 
 class field_leaf : public node_leaf
-{
-public:
-	enum Type{t_UNINIT, t_INT, t_CSTRING, t_DOUBLE, t_BOOL};	
+{	
 protected:
 	Type type;
 	std::string table;

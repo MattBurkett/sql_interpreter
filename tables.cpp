@@ -94,11 +94,11 @@ void table::add_file(std::string data_file)
 	file_stream.close();
 }
 
-std::vector<std::pair<std::string, table::Type>> table::get_columns()
+std::vector<std::pair<std::string, Type>> table::get_columns()
 {
-	std::vector<std::pair<std::string, table::Type>> columns;
+	std::vector<std::pair<std::string, Type>> columns;
 	for(auto elem : header)
-		columns.push_back( std::pair<std::string, table::Type>(elem.name, elem.type) );
+		columns.push_back( std::pair<std::string, Type>(elem.name, elem.type) );
 
 	return columns;
 }

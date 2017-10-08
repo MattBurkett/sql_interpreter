@@ -2,14 +2,13 @@
 
 #include <string>
 #include <vector>
+#include "defs.h"
 
 #define DATADIR "databases/"
 #define DATAEXT ".csv"
 
 class table
 {
-public:
-	enum Type{t_INT, t_CSTRING, t_DOUBLE, t_BOOL};
 private:
 	typedef struct 
 	{
@@ -41,7 +40,7 @@ public:
 	std::string get_name_useable();
 
 	void add_file(std::string data_file);
-	std::vector<std::pair<std::string, table::Type>> get_columns();
+	std::vector<std::pair<std::string, Type>> get_columns();
 };
 
 class tables

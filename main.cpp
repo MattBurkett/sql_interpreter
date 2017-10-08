@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 			table_resolution::visit_static(sql_ast, sql_tables);
 			astrick_resolution::visit_static(sql_ast, sql_tables);
 			name_resolution::visit_static(sql_ast, sql_tables);
-			//type_resolution
+			type_resolution::visit_static(sql_ast, sql_tables);
 			//type_check
 			//execute_query
 
