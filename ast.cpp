@@ -119,6 +119,11 @@ void field_leaf::set_type(Type t)
 {
 	type = t;
 }
+
+Type field_leaf::get_type()
+{
+	return type;
+}
 /*************************************************************************************************/
 /*                                                                                               */
 /*                                     expression_node_branch                                    */

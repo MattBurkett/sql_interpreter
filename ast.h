@@ -87,6 +87,7 @@ public:
 	void add_table(std::string table);
 	std::string get_table();
 	void set_type(Type t);
+	Type get_type();
 
 	virtual void accept(visitor* v);
 	virtual void print()

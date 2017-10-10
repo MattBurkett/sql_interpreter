@@ -3,6 +3,7 @@
 #include "parser.h"
 #include "tables.h"
 #include "visitor_print.h"
+#include "visitor_print_type.h"
 #include "visitor_table_resolution.h"
 #include "visitor_astrick_resolution.h"
 #include "visitor_name_resolution.h"
@@ -29,15 +30,18 @@ int main(int argc, char* argv[])
 			sql_ast = sql_parser.parse();
 			
 			print_ast::visit_static(sql_ast);
+			print_ast_type::visit_static(sql_ast);			
 
 			table_resolution::visit_static(sql_ast, sql_tables);
 			astrick_resolution::visit_static(sql_ast, sql_tables);
 			name_resolution::visit_static(sql_ast, sql_tables);
 			type_resolution::visit_static(sql_ast, sql_tables);
+			
 			//type_check
 			//execute_query
 
 			print_ast::visit_static(sql_ast);
+			print_ast_type::visit_static(sql_ast);	
 		}
 		catch(const char* e){
 			std::cout << parse_number++ << ". " << std::string(e) << "\n";
