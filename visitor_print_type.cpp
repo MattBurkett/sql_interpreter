@@ -104,24 +104,22 @@ void print_ast_type::visit(node_leaf* ast_node)
 void print_ast_type::visit(expression_node_leaf* ast_node)
 {
 	ast_node->print();
-	if(ast_node->get_token() == TOK_IDENTIFIER){
-		switch(ast_node->get_type()){
-			case t_UNINIT:
-			std::cout << "(Un-initalized)";
-			break;
-			case t_INT:
-			std::cout << "(Integer)";
-			break;
-			case t_CSTRING:
-			std::cout << "(String)";
-			break;
-			case t_DOUBLE:
-			std::cout << "(Double)";
-			break;
-			case t_BOOL:
-			std::cout << "(Boolean)";
-			break;
-		}
+	switch(ast_node->get_type()){
+		case t_UNINIT:
+		std::cout << "(Un-initalized)";
+		break;
+		case t_INT:
+		std::cout << "(Integer)";
+		break;
+		case t_CSTRING:
+		std::cout << "(String)";
+		break;
+		case t_DOUBLE:
+		std::cout << "(Double)";
+		break;
+		case t_BOOL:
+		std::cout << "(Boolean)";
+		break;
 	}
 }
 void print_ast_type::visit(expression_node_branch* ast_node)

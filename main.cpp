@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 			sql_parser = parser(tokens);
 			sql_ast = sql_parser.parse();
 			
-			print_ast::visit_static(sql_ast);
+			//print_ast::visit_static(sql_ast);
 			print_ast_type::visit_static(sql_ast);			
 
 			table_resolution::visit_static(sql_ast, sql_tables);
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 			//type_check
 			//execute_query
 
-			print_ast::visit_static(sql_ast);
+			//print_ast::visit_static(sql_ast);
 			print_ast_type::visit_static(sql_ast);	
 		}
 		catch(const char* e){
