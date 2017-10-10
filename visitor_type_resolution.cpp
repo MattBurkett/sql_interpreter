@@ -18,12 +18,13 @@ void type_resolution::visit_static(ast ast_tree, tables sql_tables)
 
 void type_resolution::visit(field_leaf* ast_node)
 {
-	if( ast_node->get_token() == TOK_IDENTIFIER && ast_node->get_type() == t_UNINIT )
+	if( ast_node->get_token() == TOK_IDENTIFIER && ast_node->get_type() == t_UNINIT ){
 		for(auto column : sql_tables.get_query_table().get_columns())
 			if( ast_node->get_token() == TOK_IDENTIFIER && ast_node->get_literal() == column.first ){
 				ast_node->set_type(column.second);
 				break;
 			}
+	}
 	else if( ast_node->get_token() == TOK_INTEGER )
 		ast_node->set_type(t_INT);
 	else if( ast_node->get_token() == TOK_DECIMAL )
