@@ -130,6 +130,11 @@ Type field_leaf::get_type()
 /*                                                                                               */
 /*************************************************************************************************/
 
+token_id expression_node_branch::get_opperation()
+{
+	return opperation;
+}
+
 expression_node_branch::expression_node_branch(std::pair<std::string, token_id> token_pair)
 {
 	this->opperation = token_pair.second;

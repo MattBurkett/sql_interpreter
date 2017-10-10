@@ -135,6 +135,7 @@ public:
 	{
 		return opperation_type == UNARY_EXP;
 	}
+	token_id get_opperation();
 	virtual void accept(visitor* v);
 	virtual void print()
 	{

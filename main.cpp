@@ -8,6 +8,7 @@
 #include "visitor_astrick_resolution.h"
 #include "visitor_name_resolution.h"
 #include "visitor_type_resolution.h"
+#include "visitor_type_check.h"
 
 int main(int argc, char* argv[])
 {
@@ -36,8 +37,7 @@ int main(int argc, char* argv[])
 			astrick_resolution::visit_static(sql_ast, sql_tables);
 			name_resolution::visit_static(sql_ast, sql_tables);
 			type_resolution::visit_static(sql_ast, sql_tables);
-			
-			//type_check
+			type_check::visit_static(sql_ast);
 			//execute_query
 
 			//print_ast::visit_static(sql_ast);
