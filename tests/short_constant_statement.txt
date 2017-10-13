@@ -1,0 +1,5 @@
+SELECT *
+FROM Customers
+WHERE 4 < 5 AND '200 W State st.' > '100 W State st.'
+GROUP BY Address.Customers
+ORDER BY CustomerID;

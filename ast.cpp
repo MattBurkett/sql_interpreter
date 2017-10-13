@@ -224,14 +224,14 @@ bool expression_node_leaf::get_is_temp()
 
 void* expression_node_leaf::get_value()
 {
-	switch(token){
-	case TOK_INTEGER: 
+	switch(type){
+	case t_INT: 
 		return &i;
-	case TOK_DECIMAL:
+	case t_DOUBLE:
 		return &d;
-	case TOK_BOOL:
+	case t_BOOL:
 		return &b;
-	case TOK_STRING:
+	case t_CSTRING:
 		return &s;
 	}
 	return NULL;

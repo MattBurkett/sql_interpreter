@@ -37,10 +37,13 @@ void name_resolution::resolve(field_leaf* ast_node)
 	std::string matching_table = "";
 	table query_table = sql_tables.get_query_table();
 
-	for(auto column : query_table.get_columns())
+	int i = 0;
+	for(auto column : query_table.get_columns()){
 		if(unknown_column == column.first)
-			if(matching_table == "")
+			if(matching_table == ""){
+				ast_node->set_table_x_index(i);
 				matching_table = query_table.get_name_useable();
+			}
 			else{
 				std::cout << "\tAmbiguous column: " << unknown_column 
 					<< "\n\tFirst two conflicts..."
@@ -48,6 +51,8 @@ void name_resolution::resolve(field_leaf* ast_node)
 					<< "\n\t\tTable 2: " << query_table.get_name() << "\n";
 				throw("Ambiguous column");
 			}
+		i++;
+	}
 
 	if(matching_table == ""){
 		std::cout << "\tUnresolved column: " << unknown_column << "\n";

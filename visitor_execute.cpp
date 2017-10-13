@@ -1,5 +1,7 @@
 #include <string>
 #include <stdio.h>
+
+#include "ast.h"
 #include "visitor_execute.h"
 
 void execute::visit_static(ast ast_tree, tables sql_tables)
@@ -10,6 +12,11 @@ void execute::visit_static(ast ast_tree, tables sql_tables)
 		vis.visitor::visit(ast_tree);
 	}
 }
+
+void execute::visit(select_clause* ast_node) {}
+void execute::visit(from_clause* ast_node) {}
+void execute::visit(order_by_clause* ast_node) {}
+void execute::visit(group_by_clause* ast_node) {}
 
 void execute::visit(where_predicate* ast_node)
 {
@@ -22,21 +29,47 @@ void execute::visit(where_predicate* ast_node)
 
 void execute::visit(field_leaf* ast_node)
 {
-	// expression_node_leaf* temp_node = NULL;
-	// temp_node->mark_temp();
-	// switch(ast_node->get_type()){
-	// case t_INT:
-	// 	temp_node = new expression_node_leaf( std::make_pair(std::to_string(current_row[ast_node->get_table_x_index()].data.i), TOK_INTEGER) );
-	// 	break;
-	// }
-	// children_leafs.push_back(temp_node);
+	expression_node_leaf* temp_node = NULL;
+	std::string bool_helper;
+	std::pair<std::string, token_id> bool_pair;
+
+	switch(ast_node->get_type()){
+	case t_INT:
+		temp_node = new expression_node_leaf( std::make_pair(std::to_string(current_row[ast_node->get_table_x_index()].data.i), TOK_INTEGER) );
+		break;
+	case t_CSTRING:
+		temp_node = new expression_node_leaf( std::make_pair(std::string("'") + current_row[ast_node->get_table_x_index()].data.s + "'", TOK_STRING) );
+		break;
+	case t_BOOL:
+		if(current_row[ast_node->get_table_x_index()].data.b)
+			bool_helper = std::string("true");
+		else
+			bool_helper = std::string("false");
+		bool_pair = std::pair<std::string, token_id>(bool_helper, TOK_BOOL);
+		temp_node = new expression_node_leaf( bool_pair );
+		temp_node->set_type(t_BOOL);
+		prev_node = *(bool*)temp_node->get_value();
+		break;
+	case t_DOUBLE:
+		temp_node = new expression_node_leaf( std::make_pair(std::to_string(current_row[ast_node->get_table_x_index()].data.d), TOK_DECIMAL) );
+		break;
+	}
+	temp_node->mark_temp();
+	temp_node->set_type(ast_node->get_type());
+	children_leafs.push_back(temp_node);
 }
 
 void execute::visit(expression_node_leaf* ast_node)
 {
-	children_leafs.push_back(ast_node);
-	if(ast_node->get_type() == t_BOOL)
-		prev_node = *(bool*)ast_node->get_value();
+	
+
+	if(ast_node->get_token() == TOK_IDENTIFIER)
+		visit((field_leaf*)ast_node);
+	else {
+		children_leafs.push_back(ast_node);
+		if(ast_node->get_type() == t_BOOL)
+			prev_node = *(bool*)ast_node->get_value();
+	}
 }
 
 void execute::visit(expression_node_branch* ast_node)
