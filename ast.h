@@ -81,13 +81,16 @@ class field_leaf : public node_leaf
 protected:
 	Type type;
 	std::string table;
+	int table_x_index;
 public:
 	field_leaf(std::pair<std::string, token_id> p);
 	field_leaf(std::pair<std::string, token_id> p, std::string table);
 	void add_table(std::string table);
 	std::string get_table();
 	void set_type(Type t);
+	void set_table_x_index(int i);
 	Type get_type();
+	int get_table_x_index();
 
 	virtual void accept(visitor* v);
 	virtual void print()
@@ -173,10 +176,15 @@ protected:
 	double d;
 	bool b;
 	std::string s;
+
+	bool is_temp;
 public:
 	expression_node_leaf(std::pair<std::string, token_id>, std::string table);
 	expression_node_leaf(std::pair<std::string, token_id>);
 
+	void mark_temp();
+	bool get_is_temp();
+	void* get_value();
 	virtual void accept(visitor* v);
 	virtual void print()
 	{

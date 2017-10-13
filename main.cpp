@@ -9,6 +9,7 @@
 #include "visitor_name_resolution.h"
 #include "visitor_type_resolution.h"
 #include "visitor_type_check.h"
+#include "visitor_execute.h"
 
 int main(int argc, char* argv[])
 {
@@ -38,7 +39,7 @@ int main(int argc, char* argv[])
 			name_resolution::visit_static(sql_ast, sql_tables);
 			type_resolution::visit_static(sql_ast, sql_tables);
 			type_check::visit_static(sql_ast);
-			//execute_query
+			execute::visit_static(sql_ast, sql_tables);
 
 			//print_ast::visit_static(sql_ast);
 			print_ast_type::visit_static(sql_ast);	

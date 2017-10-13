@@ -9,7 +9,7 @@
 
 class table
 {
-private:
+public:
 	typedef struct 
 	{
 		Type type;
@@ -27,6 +27,7 @@ private:
 		std::string name;
 	} field;
 
+private:
 	std::vector<std::pair<std::string, Type>> Type_s = {{"int", t_INT}, {"string", t_CSTRING}, {"double", t_DOUBLE}, {"bool", t_BOOL}};
 	std::string table_name;
 	std::vector<field> header;
@@ -36,8 +37,10 @@ private:
 public:
 	table();
 	table(std::string data_file);
+
 	std::string get_name();
 	std::string get_name_useable();
+	std::vector<std::vector<element>> get_rows();
 
 	void add_file(std::string data_file);
 	std::vector<std::pair<std::string, Type>> get_columns();

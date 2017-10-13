@@ -1,5 +1,5 @@
 SELECT *
 FROM Customers
-WHERE CustomerID.Customers < 15 AND Address > 5
+WHERE CustomerID.Customers < 5 AND Address > '100 W State st.'
 GROUP BY Address.Customers
 ORDER BY CustomerID;

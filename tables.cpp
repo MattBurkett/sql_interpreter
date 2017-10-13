@@ -22,6 +22,11 @@ std::string table::get_name_useable()
 	return table_name.substr(strlen(DATADIR), table_name.length() - strlen(DATADIR) - strlen(DATAEXT));
 }
 
+std::vector<std::vector<table::element>> table::get_rows()
+{
+	return rows;
+}
+
 void table::add_file(std::string data_file)
 {
 	table_name = data_file;

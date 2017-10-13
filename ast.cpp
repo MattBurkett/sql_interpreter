@@ -92,12 +92,14 @@ field_leaf::field_leaf(std::pair<std::string, token_id> p) : node_leaf(p)
 {
 	type = t_UNINIT;
 	this->table = "";
+	table_x_index = 0;
 }
 
 field_leaf::field_leaf(std::pair<std::string, token_id> p, std::string table) : node_leaf(p)
 {
 	type = t_UNINIT;
 	this->table = table;
+	table_x_index = 0;
 }
 
 std::string field_leaf::get_table()
@@ -120,9 +122,19 @@ void field_leaf::set_type(Type t)
 	type = t;
 }
 
+void field_leaf::set_table_x_index(int i)
+{
+	table_x_index = i;
+}
+
 Type field_leaf::get_type()
 {
 	return type;
+}
+
+int field_leaf::get_table_x_index()
+{
+	return table_x_index;
 }
 /*************************************************************************************************/
 /*                                                                                               */
@@ -178,10 +190,13 @@ void expression_node_branch::accept(visitor* v)
 /*************************************************************************************************/
 
 expression_node_leaf::expression_node_leaf(std::pair<std::string, token_id> token_pair, std::string table) : field_leaf(token_pair, table)
-{}
+{
+	is_temp = false;
+}
 
 expression_node_leaf::expression_node_leaf(std::pair<std::string, token_id> token_pair) : field_leaf(token_pair)
 {
+	is_temp = false;
 	switch(token){
 	case TOK_INTEGER: 
 		this->i = stoi(token_pair.first);
@@ -195,6 +210,31 @@ expression_node_leaf::expression_node_leaf(std::pair<std::string, token_id> toke
 	case TOK_STRING:
 		this->s = token_pair.first.substr(1, token_pair.first.size() - 2);
 	}
+}
+
+void expression_node_leaf::mark_temp()
+{
+	is_temp = true;
+}
+
+bool expression_node_leaf::get_is_temp()
+{
+	return is_temp;
+}
+
+void* expression_node_leaf::get_value()
+{
+	switch(token){
+	case TOK_INTEGER: 
+		return &i;
+	case TOK_DECIMAL:
+		return &d;
+	case TOK_BOOL:
+		return &b;
+	case TOK_STRING:
+		return &s;
+	}
+	return NULL;
 }
 
 void expression_node_leaf::accept(visitor* v)

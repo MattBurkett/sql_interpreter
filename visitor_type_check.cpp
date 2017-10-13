@@ -47,11 +47,10 @@ void type_check::visit(expression_node_branch* ast_node)
 		case TOK_BIT_NOT:
 			switch( children_types[0] ){
 			case t_INT:
-			case t_DOUBLE:
 				break;
 			default:
 				std::cout << "\tType error: bitwise not\n"
-					<< "\t\tShould be of type INT or DOUBLE, but child is " << type_string(children_types[0]) << "\n";
+					<< "\t\tShould be of type INT, but child is " << type_string(children_types[0]) << "\n";
 				throw("Type error: bitwise not");
 			}
 			break;
@@ -64,29 +63,28 @@ void type_check::visit(expression_node_branch* ast_node)
 			if (children_types[0] != t_BOOL || 
 			    children_types[1] != t_BOOL){
 				std::cout << "\tType error: boolean AND/OR\n"
-					<< "\t\tChildrent should be BOOL, but children are " << type_string(children_types[0]) << " and " << type_string(children_types[1]) << "\n";
+					<< "\t\tChildren should be BOOL, but children are " << type_string(children_types[0]) << " and " << type_string(children_types[1]) << "\n";
 				throw("Type error: boolean AND/OR");
 			}
 			break;
 		case TOK_BIT_AND:
 		case TOK_BIT_XOR:
 		case TOK_BIT_OR:
-			if (children_types[0] != t_INT &&  children_types[0] != t_DOUBLE || 
-			    children_types[1] != t_INT &&  children_types[1] != t_DOUBLE){
+		case TOK_MODULO:	//As with bitwise opperators, Modulo can only be used with ints
+			if (children_types[0] != t_INT || children_types[1] != t_INT){
 				std::cout << "\tType error: bitwise AND/XOR/OR\n"
-					<< "\t\tChildrent should be INT or DOUBLE, but children are " << type_string(children_types[0]) << " and " << type_string(children_types[1]) << "\n";
+					<< "\t\tChildren should be INT, but children are " << type_string(children_types[0]) << " and " << type_string(children_types[1]) << "\n";
 				throw("Type error: bitwise AND/XOR/OR");
 			}
 			break;
 		case TOK_DIVIDE:
-		case TOK_MODULO:
 		case TOK_ASTERICK:
 		case TOK_PLUS:
 		case TOK_MINUS:
 			if (children_types[0] != t_INT &&  children_types[0] != t_DOUBLE || 
 			    children_types[1] != t_INT &&  children_types[1] != t_DOUBLE){
 				std::cout << "\tType error: arithmetic opperation\n"
-					<< "\t\tChildrent should be INT or DOUBLE, but children are " << type_string(children_types[0]) << " and " << type_string(children_types[1]) << "\n";
+					<< "\t\tChildren should be INT or DOUBLE, but children are " << type_string(children_types[0]) << " and " << type_string(children_types[1]) << "\n";
 				throw("Type error: arithmetic opperation");
 			}
 			break;
@@ -100,7 +98,7 @@ void type_check::visit(expression_node_branch* ast_node)
 		case TOK_GT:
 			if (children_types[0] != children_types[1]){
 				std::cout << "\tType error: comparison opperation\n"
-					<< "\t\tChildrent should be of the same type, but children are " << type_string(children_types[0]) << " and " << type_string(children_types[1]) << "\n";
+					<< "\t\tChildren should be of the same type, but children are " << type_string(children_types[0]) << " and " << type_string(children_types[1]) << "\n";
 				throw("Type error: comparison opperation");
 			}
 			break;
