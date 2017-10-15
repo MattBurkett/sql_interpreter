@@ -12,6 +12,11 @@ table::table(std::string data_file)
 	add_file(data_file);
 }
 
+table::table(std::vector<std::vector<element>> rows)
+{
+	this->rows = rows;
+}
+
 std::string table::get_name()
 {
 	return table_name;
@@ -78,6 +83,7 @@ void table::add_file(std::string data_file)
 				case t_CSTRING:
 					tmp.data.s = (char*)malloc((line1.size() + 1)*sizeof(char));
 					line1.copy(tmp.data.s, line1.size());
+					tmp.data.s[line1.size()] = '\0';
 					break;
 
 				case t_DOUBLE:
@@ -106,6 +112,34 @@ std::vector<std::pair<std::string, Type>> table::get_columns()
 		columns.push_back( std::pair<std::string, Type>(elem.name, elem.type) );
 
 	return columns;
+}
+
+void table::print()
+{
+	for(auto f : header){
+		std::cout << f.name << " ";
+	}
+	std::cout << "\n";
+	for(auto row : rows){
+		for(auto elem : row){
+			switch(elem.type){
+			case t_INT:
+				std::cout << elem.data.i;
+				break;
+			case t_CSTRING:
+				std::cout << elem.data.s;
+				break;
+			case t_DOUBLE:
+				std::cout << elem.data.d;
+				break;
+			case t_BOOL:
+				std::cout << ( elem.data.b ? std::string("true") : std::string("false") );
+				break;
+			}
+			std::cout << " ";
+		}
+		std::cout << "\n";
+	}
 }
 
 tables::tables()

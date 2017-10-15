@@ -5,11 +5,11 @@ class execute : public visitor
 {
 private:
 	bool prev_node;
-	enum {UNKNOWN, SELECT, FROM, WHERE, ORDER, GROUP} current_state;
 	std::vector<table::element> current_row;
+	std::vector<std::vector<table::element>> query_rows;
 	std::vector<expression_node_leaf*> children_leafs;
 public:
-	static void visit_static(ast ast_tree, tables sql_tables);	
+	static table visit_static(ast ast_tree, tables sql_tables);	
 
 	virtual void visit(select_clause* ast_node);
 	virtual void visit(from_clause* ast_node);

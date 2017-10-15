@@ -37,6 +37,7 @@ private:
 public:
 	table();
 	table(std::string data_file);
+	table(std::vector<std::vector<element>> rows);
 
 	std::string get_name();
 	std::string get_name_useable();
@@ -44,6 +45,8 @@ public:
 
 	void add_file(std::string data_file);
 	std::vector<std::pair<std::string, Type>> get_columns();
+
+	void print();
 };
 
 class tables

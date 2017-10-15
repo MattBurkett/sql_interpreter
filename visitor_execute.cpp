@@ -2,15 +2,17 @@
 #include <stdio.h>
 
 #include "ast.h"
+#include "tables.h"
 #include "visitor_execute.h"
 
-void execute::visit_static(ast ast_tree, tables sql_tables)
+table execute::visit_static(ast ast_tree, tables sql_tables)
 {
 	execute vis;
 	for ( auto row : sql_tables.get_query_table().get_rows()){
 		vis.current_row = row;
 		vis.visitor::visit(ast_tree);
 	}
+	return table(vis.query_rows);
 }
 
 void execute::visit(select_clause* ast_node) {}
@@ -20,18 +22,16 @@ void execute::visit(group_by_clause* ast_node) {}
 
 void execute::visit(where_predicate* ast_node)
 {
-	current_state = execute::WHERE;
 	for(auto e : ast_node->get_children())
 		e->accept(this);
-	std::cout << (prev_node?"true\n":"false\n");
-	current_state = execute::UNKNOWN;
+	if(prev_node)
+		query_rows.push_back(current_row);
+	//std::cout << (prev_node?"true\n":"false\n");
 }
 
 void execute::visit(field_leaf* ast_node)
 {
 	expression_node_leaf* temp_node = NULL;
-	std::string bool_helper;
-	std::pair<std::string, token_id> bool_pair;
 
 	switch(ast_node->get_type()){
 	case t_INT:
@@ -41,12 +41,7 @@ void execute::visit(field_leaf* ast_node)
 		temp_node = new expression_node_leaf( std::make_pair(std::string("'") + current_row[ast_node->get_table_x_index()].data.s + "'", TOK_STRING) );
 		break;
 	case t_BOOL:
-		if(current_row[ast_node->get_table_x_index()].data.b)
-			bool_helper = std::string("true");
-		else
-			bool_helper = std::string("false");
-		bool_pair = std::pair<std::string, token_id>(bool_helper, TOK_BOOL);
-		temp_node = new expression_node_leaf( bool_pair );
+		temp_node = new expression_node_leaf( std::make_pair(current_row[ast_node->get_table_x_index()].data.b ? std::string("true") : std::string("false") , TOK_BOOL) );
 		temp_node->set_type(t_BOOL);
 		prev_node = *(bool*)temp_node->get_value();
 		break;
@@ -61,8 +56,6 @@ void execute::visit(field_leaf* ast_node)
 
 void execute::visit(expression_node_leaf* ast_node)
 {
-	
-
 	if(ast_node->get_token() == TOK_IDENTIFIER)
 		visit((field_leaf*)ast_node);
 	else {
