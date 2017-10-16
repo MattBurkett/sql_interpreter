@@ -155,12 +155,11 @@ std::vector<std::pair<std::string, Type>> table::get_columns()
 
 void table::print()
 {
-	for(auto f : header){
-		std::cout << f.name << " ";
+	for(const auto &f : header){
+		std::cout << f.name << ((&f != &header.back()) ? std::string(", ") : std::string("\n"));
 	}
-	std::cout << "\n";
-	for(auto row : rows){
-		for(auto elem : row){
+	for(const auto &row : rows){
+		for(const auto &elem : row){
 			switch(elem.type){
 			case t_INT:
 				std::cout << elem.data.i;
@@ -175,9 +174,8 @@ void table::print()
 				std::cout << ( elem.data.b ? std::string("true") : std::string("false") );
 				break;
 			}
-			std::cout << " ";
+			std::cout << ((&elem != &row.back()) ? std::string(" | ") : std::string("\n"));
 		}
-		std::cout << "\n";
 	}
 }
 
