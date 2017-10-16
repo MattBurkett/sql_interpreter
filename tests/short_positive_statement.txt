@@ -1,5 +1,5 @@
-SELECT *
+SELECT CustomerID, CustomerName
 FROM Customers
-WHERE CustomerID.Customers < 15 AND Address > 5
+WHERE Country = 'Mexico'
 GROUP BY Address.Customers
 ORDER BY CustomerID;

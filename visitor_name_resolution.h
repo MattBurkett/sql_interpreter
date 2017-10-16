@@ -7,7 +7,7 @@ private:
 	tables sql_tables;
 
 	name_resolution(tables sql_tables);
-	std::string resolve(std::string column);
+	void resolve(field_leaf* ast_node);
 
 public:
 	static void visit_static(ast ast_tree, tables sql_tables);

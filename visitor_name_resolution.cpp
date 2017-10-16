@@ -20,25 +20,30 @@ void name_resolution::visit(field_leaf* ast_node)
 {
 	std::vector<std::string> possible_tables;
 	if(ast_node->get_token() == TOK_IDENTIFIER && ast_node->get_table() == "")
-		ast_node->add_table( resolve(ast_node->get_literal()) );
+		resolve(ast_node);
 }
 
 void name_resolution::visit(expression_node_leaf* ast_node)
 {
 	std::vector<std::string> possible_tables;
 	if(ast_node->get_token() == TOK_IDENTIFIER && ast_node->get_table() == "")
-		ast_node->add_table( resolve(ast_node->get_literal()) );
+		resolve(ast_node);
+
 }
 
-std::string name_resolution::resolve(std::string unknown_column)
+void name_resolution::resolve(field_leaf* ast_node)
 {
+	std::string unknown_column = ast_node->get_literal();
 	std::string matching_table = "";
 	table query_table = sql_tables.get_query_table();
 
-	for(auto column : query_table.get_columns())
+	int i = 0;
+	for(auto column : query_table.get_columns()){
 		if(unknown_column == column.first)
-			if(matching_table == "")
+			if(matching_table == ""){
+				ast_node->set_table_x_index(i);
 				matching_table = query_table.get_name_useable();
+			}
 			else{
 				std::cout << "\tAmbiguous column: " << unknown_column 
 					<< "\n\tFirst two conflicts..."
@@ -46,12 +51,14 @@ std::string name_resolution::resolve(std::string unknown_column)
 					<< "\n\t\tTable 2: " << query_table.get_name() << "\n";
 				throw("Ambiguous column");
 			}
+		i++;
+	}
 
 	if(matching_table == ""){
 		std::cout << "\tUnresolved column: " << unknown_column << "\n";
 		throw("Unresolved column");
 	}
 
-	return matching_table;
-	
+	ast_node->add_table(matching_table);
+
 }

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <dirent.h>
 #include <string.h>
+#include <algorithm>
 #include "tables.h"
 
 table::table()
@@ -12,6 +13,12 @@ table::table(std::string data_file)
 	add_file(data_file);
 }
 
+table::table(std::vector<std::vector<element>> rows, std::vector<field> header)
+{
+	this->rows = rows;
+	this->header = header;
+}
+
 std::string table::get_name()
 {
 	return table_name;
@@ -20,6 +27,37 @@ std::string table::get_name()
 std::string table::get_name_useable()
 {
 	return table_name.substr(strlen(DATADIR), table_name.length() - strlen(DATADIR) - strlen(DATAEXT));
+}
+
+std::vector<std::vector<table::element>> table::get_rows()
+{
+	return rows;
+}
+
+std::vector<table::field> table::get_header()
+{
+	return header;
+}
+
+void table::remove_columns(std::vector<field> columns)
+{
+	int offset;
+	for(field column : columns){
+		offset = std::find_if(header.begin(), header.end(),
+			[=](field elem1)
+			{
+				return elem1.type == column.type && elem1.name == column.name;
+			}) - header.begin();
+
+		if(offset < header.size()){
+			header.erase(header.begin() + offset);
+			for(auto &row : rows)
+				row.erase(row.begin() + offset);
+		}
+		else
+			std::cout << "Attempt to remove not existing column: " << column.name << "\n";
+	}
+
 }
 
 void table::add_file(std::string data_file)
@@ -73,6 +111,7 @@ void table::add_file(std::string data_file)
 				case t_CSTRING:
 					tmp.data.s = (char*)malloc((line1.size() + 1)*sizeof(char));
 					line1.copy(tmp.data.s, line1.size());
+					tmp.data.s[line1.size()] = '\0';
 					break;
 
 				case t_DOUBLE:
@@ -94,6 +133,17 @@ void table::add_file(std::string data_file)
 	file_stream.close();
 }
 
+void table::set_columns(std::vector<field> header)
+{
+	std::vector<field> new_set(this->header.size());
+	auto end_ittr = std::set_difference(
+			this->header.begin(), this->header.end(),
+			header.begin(), header.end(), 
+			new_set.begin());
+	new_set.erase(end_ittr, new_set.end());
+	remove_columns(new_set);
+}
+
 std::vector<std::pair<std::string, Type>> table::get_columns()
 {
 	std::vector<std::pair<std::string, Type>> columns;
@@ -101,6 +151,34 @@ std::vector<std::pair<std::string, Type>> table::get_columns()
 		columns.push_back( std::pair<std::string, Type>(elem.name, elem.type) );
 
 	return columns;
+}
+
+void table::print()
+{
+	for(auto f : header){
+		std::cout << f.name << " ";
+	}
+	std::cout << "\n";
+	for(auto row : rows){
+		for(auto elem : row){
+			switch(elem.type){
+			case t_INT:
+				std::cout << elem.data.i;
+				break;
+			case t_CSTRING:
+				std::cout << elem.data.s;
+				break;
+			case t_DOUBLE:
+				std::cout << elem.data.d;
+				break;
+			case t_BOOL:
+				std::cout << ( elem.data.b ? std::string("true") : std::string("false") );
+				break;
+			}
+			std::cout << " ";
+		}
+		std::cout << "\n";
+	}
 }
 
 tables::tables()

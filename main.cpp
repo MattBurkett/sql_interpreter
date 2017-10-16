@@ -9,6 +9,8 @@
 #include "visitor_name_resolution.h"
 #include "visitor_type_resolution.h"
 #include "visitor_type_check.h"
+#include "visitor_execute.h"
+#include "visitor_select_fields.h"
 
 int main(int argc, char* argv[])
 {
@@ -17,6 +19,7 @@ int main(int argc, char* argv[])
 	parser sql_parser;
 	ast sql_ast;
 	tables sql_tables(database_dir);
+	table  result_table;
 	int parse_number = 1;
 
 	if(argc == 1)
@@ -30,18 +33,22 @@ int main(int argc, char* argv[])
 			sql_parser = parser(tokens);
 			sql_ast = sql_parser.parse();
 			
-			//print_ast::visit_static(sql_ast);
-			print_ast_type::visit_static(sql_ast);			
+			// print_ast::visit_static(sql_ast);
+			// print_ast_type::visit_static(sql_ast);			
 
 			table_resolution::visit_static(sql_ast, sql_tables);
 			astrick_resolution::visit_static(sql_ast, sql_tables);
 			name_resolution::visit_static(sql_ast, sql_tables);
 			type_resolution::visit_static(sql_ast, sql_tables);
 			type_check::visit_static(sql_ast);
-			//execute_query
+			result_table = execute::visit_static(sql_ast, sql_tables);
+			select_fields::visit_static(sql_ast, result_table);
+			//group
+			//order
 
-			//print_ast::visit_static(sql_ast);
-			print_ast_type::visit_static(sql_ast);	
+			result_table.print();
+			// print_ast::visit_static(sql_ast);
+			// print_ast_type::visit_static(sql_ast);	
 		}
 		catch(const char* e){
 			std::cout << parse_number++ << ". " << std::string(e) << "\n";
