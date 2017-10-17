@@ -43,6 +43,7 @@ void type_check::visit(expression_node_branch* ast_node)
 					<< "\t\tShould be of type BOOL, but child is " << type_string(children_types[0]) << "\n";
 				throw("Type error: boolean not");
 			}
+			prev_func_type = t_BOOL;
 			break;
 		case TOK_BIT_NOT:
 			switch( children_types[0] ){
@@ -53,6 +54,7 @@ void type_check::visit(expression_node_branch* ast_node)
 					<< "\t\tShould be of type INT, but child is " << type_string(children_types[0]) << "\n";
 				throw("Type error: bitwise not");
 			}
+			prev_func_type = children_types[0];
 			break;
 		}
 	}
@@ -66,6 +68,7 @@ void type_check::visit(expression_node_branch* ast_node)
 					<< "\t\tChildren should be BOOL, but children are " << type_string(children_types[0]) << " and " << type_string(children_types[1]) << "\n";
 				throw("Type error: boolean AND/OR");
 			}
+			prev_func_type = t_BOOL;
 			break;
 		case TOK_BIT_AND:
 		case TOK_BIT_XOR:
@@ -76,6 +79,7 @@ void type_check::visit(expression_node_branch* ast_node)
 					<< "\t\tChildren should be INT, but children are " << type_string(children_types[0]) << " and " << type_string(children_types[1]) << "\n";
 				throw("Type error: bitwise AND/XOR/OR");
 			}
+			prev_func_type = children_types[0];
 			break;
 		case TOK_DIVIDE:
 		case TOK_ASTERICK:
@@ -87,6 +91,10 @@ void type_check::visit(expression_node_branch* ast_node)
 					<< "\t\tChildren should be INT or DOUBLE, but children are " << type_string(children_types[0]) << " and " << type_string(children_types[1]) << "\n";
 				throw("Type error: arithmetic opperation");
 			}
+			if (children_types[0] == t_INT && children_types[1] == t_INT)
+				prev_func_type = t_INT;
+			else
+				prev_func_type = t_DOUBLE;
 			break;
 		case TOK_EQ:
 		case TOK_NOTEQ:
@@ -97,14 +105,14 @@ void type_check::visit(expression_node_branch* ast_node)
 		case TOK_LT:
 		case TOK_GT:
 			if (children_types[0] != children_types[1]){
-				std::cout << "\tType error: comparison opperation\n"
+				std::cout << "\tType error: comparison opperation: " << ast_node->get_literal() << "\n"
 					<< "\t\tChildren should be of the same type, but children are " << type_string(children_types[0]) << " and " << type_string(children_types[1]) << "\n";
 				throw("Type error: comparison opperation");
 			}
+			prev_func_type = t_BOOL;
 			break;
 		}
 	}
-	prev_func_type = t_BOOL;
 }
 void type_check::visit(field_leaf* ast_node)
 {

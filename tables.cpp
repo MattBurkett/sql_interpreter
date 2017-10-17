@@ -204,7 +204,7 @@ void table::print()
 				std::cout << elem.data.s;
 				break;
 			case t_DOUBLE:
-				std::cout << elem.data.d;
+				std::cout << elem.data.d << ((elem.data.d - (int)elem.data.d == 0) ? std::string(".0") : std::string(""));
 				break;
 			case t_BOOL:
 				std::cout << ( elem.data.b ? std::string("true") : std::string("false") );

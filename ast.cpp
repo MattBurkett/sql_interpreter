@@ -142,6 +142,12 @@ int field_leaf::get_table_x_index()
 /*                                                                                               */
 /*************************************************************************************************/
 
+
+std::string expression_node_branch::get_literal()
+{
+	return literal;
+}
+
 token_id expression_node_branch::get_opperation()
 {
 	return opperation;

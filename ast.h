@@ -134,6 +134,7 @@ public:
 	expression_node_branch(std::pair<std::string, token_id>);
 	expression_node_branch(token_id opperation, std::string literal);
 
+	std::string get_literal();
 	bool is_unary_exp()
 	{
 		return opperation_type == UNARY_EXP;

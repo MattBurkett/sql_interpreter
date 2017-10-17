@@ -1,5 +1,5 @@
-SELECT name, id
+SELECT name, id, grade
 FROM short
-WHERE true
+WHERE id > 2 AND id < 16 AND (NOT (name = 'Jacob')) AND (grade * 10) > 40.0
 GROUP BY name
 ORDER BY name DESC;
