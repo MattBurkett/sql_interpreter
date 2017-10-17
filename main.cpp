@@ -11,6 +11,7 @@
 #include "visitor_type_check.h"
 #include "visitor_execute.h"
 #include "visitor_select_fields.h"
+#include "visitor_order_fields.h"
 
 int main(int argc, char* argv[])
 {
@@ -44,7 +45,7 @@ int main(int argc, char* argv[])
 			result_table = execute::visit_static(sql_ast, sql_tables);
 			select_fields::visit_static(sql_ast, result_table);
 			//group
-			//order
+			order_fields::visit_static(sql_ast, result_table);
 
 			result_table.print();
 			// print_ast::visit_static(sql_ast);

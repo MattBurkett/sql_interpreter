@@ -2,4 +2,4 @@ SELECT CustomerID, CustomerName
 FROM Customers
 WHERE Country = 'Mexico'
 GROUP BY Address.Customers
-ORDER BY CustomerID;
+ORDER BY CustomerID DESC;

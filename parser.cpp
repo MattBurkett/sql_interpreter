@@ -439,11 +439,6 @@ group_by_clause *parser::_group_by_clause()
 	group_by_node_subject->add_child(new node_leaf(match(TOK_BY)));
 
 	_column(group_by_node_predicate);
-	if(current_token != token_stream.end())
-		if(current_token->second == TOK_ASC)
-			match(TOK_ASC);
-		else if(current_token->second == TOK_DESC)
-			match(TOK_DESC);
 	_more_columns(group_by_node_predicate);
 
 	return group_by_node;
@@ -483,6 +478,12 @@ order_by_clause *parser::_order_by_clause()
 	order_by_node_subject->add_child(new node_leaf(match(TOK_BY)));
 
 	_column(order_by_node_predicate);
+	
+	if(current_token != token_stream.end())
+		if(current_token->second == TOK_ASC)
+			match(TOK_ASC);
+		else if(current_token->second == TOK_DESC)
+			match(TOK_DESC);
 	_more_columns(order_by_node_predicate);
 
 	return order_by_node;
