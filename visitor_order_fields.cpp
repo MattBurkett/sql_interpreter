@@ -18,11 +18,8 @@ void order_fields::visit(field_leaf* ast_node)
 		is_ascending = true;
 		return;
 	}
-	//std::cout << ast_node->get_literal() << "." << ast_node->get_table() << "\n";
-	if(is_ascending)
-		std::cout << "sort " << ast_node->get_literal() << " in Ascending order\n";
-	else
-		std::cout << "sort " << ast_node->get_literal() << " in Descending order\n";
+	// std::cout << ast_node->get_literal() << "." << ast_node->get_table() << "\n";
+	// std::cout << "sort " << ast_node->get_literal() << (is_ascending ? std::string(" in Ascending order\n") : std::string(" in Descending order\n"));
 	
 	this->result_table->sort(ast_node->get_literal(), is_ascending);
 	return;
@@ -40,7 +37,7 @@ void order_fields::visit(node_leaf* ast_node)
 void order_fields::visit(order_by_predicate* ast_node)
 {
 	auto children = ast_node->get_children();
-	for(auto ittr = children.begin(); ittr < children.end(); ittr++){
+	for(auto ittr = children.end() - 1; ittr >= children.begin(); ittr--){
 		if(ittr+1 != children.end()){
 			checking_if_sort = true;
 			ittr[1]->accept(this);

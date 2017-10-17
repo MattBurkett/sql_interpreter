@@ -165,11 +165,18 @@ void table::add_file(std::string data_file)
 void table::set_columns(std::vector<field> header)
 {
 	std::vector<field> new_set(this->header.size());
+	std::vector<field> header_copy(this->header);
+
+	std::sort(header_copy.begin(), header_copy.end());
+	std::sort(header.begin(), header.end());
+
+	//set_difference requires elements to be sorted
 	auto end_ittr = std::set_difference(
-			this->header.begin(), this->header.end(),
+			header_copy.begin(), header_copy.end(),
 			header.begin(), header.end(), 
 			new_set.begin());
 	new_set.erase(end_ittr, new_set.end());
+
 	remove_columns(new_set);
 }
 

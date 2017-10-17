@@ -1,5 +1,5 @@
-SELECT *
+SELECT name, id
 FROM short
-WHERE id < 5 AND male = true
+WHERE true
 GROUP BY name
-ORDER BY grade;
+ORDER BY name DESC;
