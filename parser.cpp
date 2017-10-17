@@ -465,6 +465,34 @@ void parser::_more_columns(node_branch* parent)
 	}
 }
 
+void parser::_column_with_asc(node_branch* parent)
+{
+	auto column = match(TOK_IDENTIFIER);
+	if(current_token != token_stream.end() && current_token->second == TOK_PERIOD){
+		match(TOK_PERIOD);
+		auto table = match(TOK_IDENTIFIER);
+		parent->add_child(new field_leaf(column, table.first));
+	}
+	else
+		parent->add_child(new field_leaf(column));
+
+	if(current_token != token_stream.end())
+		if(current_token->second == TOK_ASC)
+			parent->add_child( new node_leaf(match(TOK_ASC)) );
+		else if(current_token->second == TOK_DESC)
+			parent->add_child( new node_leaf(match(TOK_DESC)) );
+			
+}
+
+void parser::_more_columns_with_asc(node_branch* parent)
+{
+	if(current_token != token_stream.end() && current_token->second == TOK_COMMA){
+		match(TOK_COMMA);
+		_column_with_asc(parent);
+		_more_columns_with_asc(parent);
+	}
+}
+
 order_by_clause *parser::_order_by_clause()
 {
 	order_by_clause *order_by_node = new order_by_clause();
@@ -477,14 +505,8 @@ order_by_clause *parser::_order_by_clause()
 	order_by_node_subject->add_child(new node_leaf(match(TOK_ORDER)));
 	order_by_node_subject->add_child(new node_leaf(match(TOK_BY)));
 
-	_column(order_by_node_predicate);
-	
-	if(current_token != token_stream.end())
-		if(current_token->second == TOK_ASC)
-			match(TOK_ASC);
-		else if(current_token->second == TOK_DESC)
-			match(TOK_DESC);
-	_more_columns(order_by_node_predicate);
+	_column_with_asc(order_by_node_predicate);
+	_more_columns_with_asc(order_by_node_predicate);
 
 	return order_by_node;
 }

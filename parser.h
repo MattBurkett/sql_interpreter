@@ -40,6 +40,8 @@ private:
 	group_by_clause *_group_by_clause();
 	void _column(node_branch* parent);
 	void _more_columns(node_branch* parent);
+	void _column_with_asc(node_branch* parent);
+	void _more_columns_with_asc(node_branch* parent);
 	order_by_clause *_order_by_clause();
 public:
 	parser();

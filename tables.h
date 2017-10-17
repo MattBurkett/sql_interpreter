@@ -46,6 +46,7 @@ public:
 	std::vector<std::vector<element>> get_rows();
 	std::vector<field> get_header();
 
+	void sort(std::string name, bool ascending);
 	void remove_columns(std::vector<field> columns);
 	void add_file(std::string data_file);
 	void set_columns(std::vector<field> header);

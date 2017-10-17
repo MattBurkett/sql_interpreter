@@ -39,6 +39,35 @@ std::vector<table::field> table::get_header()
 	return header;
 }
 
+void table::sort(std::string name, bool ascending)
+{
+	auto ittr = header.begin();
+	for(; ittr < header.end(); ittr++)
+		if(ittr->name == name)
+			break;
+	int index = ittr - header.begin();
+
+	std::stable_sort(rows.begin(), rows.end(),
+		[=](const auto &row1, const auto &row2)
+		{
+			switch(ittr->type){
+			case t_INT:
+				return (row1[index].data.i < row2[index].data.i) == ascending;
+				break;
+			case t_CSTRING:
+				return (strcmp(row1[index].data.s, row2[index].data.s) <= 0) == ascending;
+				break;
+			case t_DOUBLE:
+				return (row1[index].data.d < row2[index].data.d) == ascending;
+				break;
+			case t_BOOL:
+				return (row1[index].data.b < row2[index].data.b) == ascending;
+				break;
+			}
+			return true;
+		});
+}
+
 void table::remove_columns(std::vector<field> columns)
 {
 	int offset;

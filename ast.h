@@ -468,8 +468,8 @@ public:
 	void add_child(node *_child)
 	{
 		node_leaf *child = dynamic_cast<node_leaf *>(_child);
-		if(child->get_token() != TOK_IDENTIFIER && child->get_token() != TOK_PERIOD)
-			throw "Error: adding non-identifier and non-period token into order_by predicate";
+		if(child->get_token() != TOK_IDENTIFIER && child->get_token() != TOK_ASC && child->get_token() != TOK_DESC)
+			throw "Error: adding non-identifier, non-asc, and non-desc token into order_by predicate";
 		children.push_back(child);
 	}
 	void add_child(node_leaf* child1, node_leaf* child2, node_leaf* child3)
