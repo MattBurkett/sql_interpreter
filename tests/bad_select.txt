@@ -1,0 +1,4 @@
+SELECT *
+FROM short
+WHERE name > 'Bill' AND male = true
+ORDER BY name;
