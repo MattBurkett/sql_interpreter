@@ -19,14 +19,14 @@ void name_resolution::visit_static(ast ast_tree, tables sql_tables)
 void name_resolution::visit(field_leaf* ast_node)
 {
 	std::vector<std::string> possible_tables;
-	if(ast_node->get_token() == TOK_IDENTIFIER && ast_node->get_table() == "")
+	if(ast_node->get_token() == TOK_IDENTIFIER)
 		resolve(ast_node);
 }
 
 void name_resolution::visit(expression_node_leaf* ast_node)
 {
 	std::vector<std::string> possible_tables;
-	if(ast_node->get_token() == TOK_IDENTIFIER && ast_node->get_table() == "")
+	if(ast_node->get_token() == TOK_IDENTIFIER)
 		resolve(ast_node);
 
 }
@@ -43,6 +43,10 @@ void name_resolution::resolve(field_leaf* ast_node)
 			if(matching_table == ""){
 				ast_node->set_table_x_index(i);
 				matching_table = query_table.get_name_useable();
+			}
+			else if(query_table.get_name_useable() == ast_node->get_table()){
+				ast_node->set_table_x_index(i);
+				return;
 			}
 			else{
 				std::cout << "\tAmbiguous column: " << unknown_column 

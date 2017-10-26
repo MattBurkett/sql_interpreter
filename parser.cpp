@@ -395,10 +395,10 @@ node* parser::_base()
 			
 			if(current_token != token_stream.end() && current_token->second == TOK_PERIOD){
 				match(TOK_PERIOD);
-				parent = new expression_node_leaf(leaf, match(TOK_IDENTIFIER).first);
+				parent = new expression_node_leaf(match(TOK_IDENTIFIER), leaf.first);
 			}
 			else{
-				parent = new expression_node_leaf(leaf, "");
+				parent = new expression_node_leaf(leaf);
 			}
 			break;
 		case TOK_INTEGER:
@@ -446,14 +446,14 @@ group_by_clause *parser::_group_by_clause()
 
 void parser::_column(node_branch* parent)
 {
-	auto column = match(TOK_IDENTIFIER);
+	auto first_identifier = match(TOK_IDENTIFIER);
 	if(current_token != token_stream.end() && current_token->second == TOK_PERIOD){
 		match(TOK_PERIOD);
-		auto table = match(TOK_IDENTIFIER);
-		parent->add_child(new field_leaf(column, table.first));
+		auto column = match(TOK_IDENTIFIER);
+		parent->add_child(new field_leaf(column, first_identifier.first));
 	}
 	else
-		parent->add_child(new field_leaf(column));
+		parent->add_child(new field_leaf(first_identifier));
 }
 
 void parser::_more_columns(node_branch* parent)
@@ -467,14 +467,14 @@ void parser::_more_columns(node_branch* parent)
 
 void parser::_column_with_asc(node_branch* parent)
 {
-	auto column = match(TOK_IDENTIFIER);
+	auto first_identifier = match(TOK_IDENTIFIER);
 	if(current_token != token_stream.end() && current_token->second == TOK_PERIOD){
 		match(TOK_PERIOD);
-		auto table = match(TOK_IDENTIFIER);
-		parent->add_child(new field_leaf(column, table.first));
+		auto column = match(TOK_IDENTIFIER);
+		parent->add_child(new field_leaf(column, first_identifier.first));
 	}
 	else
-		parent->add_child(new field_leaf(column));
+		parent->add_child(new field_leaf(first_identifier));
 
 	if(current_token != token_stream.end())
 		if(current_token->second == TOK_ASC)

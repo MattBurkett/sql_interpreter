@@ -95,7 +95,7 @@ public:
 	virtual void accept(visitor* v);
 	virtual void print()
 	{
-		std::cout << this->literal << "." << this->table << " ";
+		std::cout << this->table << "." << this->literal << " ";
 	}
 };
 

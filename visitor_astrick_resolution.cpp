@@ -26,7 +26,7 @@ void astrick_resolution::visit(select_predicate* ast_node)
 	if(child_astrick){
 		ast_node->remove_child(0);
 		for( auto column : sql_tables.get_query_table().get_columns() )
-			ast_node->add_child( new field_leaf(std::pair<std::string, token_id>(column.first, TOK_IDENTIFIER), sql_tables.get_query_table().get_name_useable()) );
+			ast_node->add_child( new field_leaf(std::pair<std::string, token_id>(sql_tables.get_query_table().get_name_useable(), TOK_IDENTIFIER), column.first) );
 	}
 	parent_select_predicate = false;
 }
