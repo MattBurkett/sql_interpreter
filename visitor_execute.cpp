@@ -10,6 +10,7 @@ table execute::visit_static(ast ast_tree, tables sql_tables)
 	execute vis;
 	for ( auto row : sql_tables.get_query_table().get_rows()){
 		vis.current_row = row;
+		vis.children_leafs.clear();
 		vis.visitor::visit(ast_tree);
 	}
 	return table(vis.query_rows, sql_tables.get_query_table().get_header());
@@ -156,6 +157,7 @@ void execute::visit(expression_node_branch* ast_node)
 			if(my_children_leafs[0]->get_type() == t_INT && my_children_leafs[1]->get_type() == t_INT){
 				arithmetic_value = (*(int*)my_children_leafs[0]->get_value()) + (*(int*)my_children_leafs[1]->get_value());
 				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
+				temp_node->set_type(t_INT);
 			}
 			else{
 				if(my_children_leafs[0]->get_type() == t_DOUBLE && my_children_leafs[1]->get_type() == t_INT)
@@ -171,6 +173,7 @@ void execute::visit(expression_node_branch* ast_node)
 			if(my_children_leafs[0]->get_type() == t_INT && my_children_leafs[1]->get_type() == t_INT){
 				arithmetic_value = (*(int*)my_children_leafs[0]->get_value()) - (*(int*)my_children_leafs[1]->get_value());
 				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
+				temp_node->set_type(t_INT);
 			}
 			else{
 				if(my_children_leafs[0]->get_type() == t_DOUBLE && my_children_leafs[1]->get_type() == t_INT)
