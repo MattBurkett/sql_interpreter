@@ -1,3 +1,4 @@
-SELECT name, short.id, short.grade
+SELECT *
 FROM short
-WHERE id = 666 - 660;
+WHERE id > 2 AND id < 15 AND male = true;
+ORDER BY grade DESC, name
