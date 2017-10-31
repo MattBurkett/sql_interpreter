@@ -25,7 +25,7 @@ void execute::visit(where_predicate* ast_node)
 {
 	for(auto e : ast_node->get_children())
 		e->accept(this);
-	if(prev_node)
+	if(*(bool*)children_leafs.back()->get_value() == true)
 		query_rows.push_back(current_row);
 	//std::cout << (prev_node?"true\n":"false\n");
 }
@@ -44,7 +44,6 @@ void execute::visit(field_leaf* ast_node)
 	case t_BOOL:
 		temp_node = new expression_node_leaf( std::make_pair(current_row[ast_node->get_table_x_index()].data.b ? std::string("true") : std::string("false") , TOK_BOOL) );
 		temp_node->set_type(t_BOOL);
-		prev_node = *(bool*)temp_node->get_value();
 		break;
 	case t_DOUBLE:
 		temp_node = new expression_node_leaf( std::make_pair(std::to_string(current_row[ast_node->get_table_x_index()].data.d), TOK_DECIMAL) );
@@ -61,193 +60,211 @@ void execute::visit(expression_node_leaf* ast_node)
 		visit((field_leaf*)ast_node);
 	else {
 		children_leafs.push_back(ast_node);
-		if(ast_node->get_type() == t_BOOL)
-			prev_node = *(bool*)ast_node->get_value();
 	}
 }
 
 void execute::visit(expression_node_branch* ast_node)
 {
-	std::vector<bool> children_boolean;
 	//delete previous temporary nodes and clear children vector
-	std::vector<expression_node_leaf*> prev_children_leafs = children_leafs;
-	for( auto node : children_leafs )
-		if(node->get_is_temp())
-			delete node;
-	children_leafs.clear();
-
-	for(auto e : ast_node->get_children()){
-		prev_node = false;
+	for(auto e : ast_node->get_children())
 		e->accept(this);
-		children_boolean.push_back(prev_node);
-	}
-
-	std::vector<expression_node_leaf*> my_children_leafs = children_leafs;
-	children_leafs = prev_children_leafs;
 
 	int arithmetic_value;
+	bool boolean_value;
 	expression_node_leaf* temp_node = NULL;
+	auto ritter = children_leafs.rbegin();
+
 	if( ast_node->is_unary_exp() ){
 		switch( ast_node->get_opperation() ){
 		case TOK_BOOL_NOT:
-			prev_node = !children_boolean[0];
+			temp_node = new expression_node_leaf( std::make_pair( (*(bool*)ritter[0]->get_value())?(std::string("true")):(std::string("false")), TOK_BOOL ) );
+			temp_node->set_type(t_BOOL);
 			break;
 		case TOK_BIT_NOT:
-			arithmetic_value = ~*(int*)my_children_leafs[0]->get_value();
+			arithmetic_value = ~*(int*)ritter[0]->get_value();
 			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
 			break;
 		}
+		children_leafs.pop_back();
 	}
 	else{
 		switch( ast_node->get_opperation() ){
 		case TOK_BOOL_AND:
-			prev_node = children_boolean[0] && children_boolean[1];
+			temp_node = new expression_node_leaf( std::make_pair( (*(bool*)ritter[1]->get_value() && *(bool*)ritter[0]->get_value())?(std::string("true")):(std::string("false")), TOK_BOOL ) );
+			temp_node->set_type(t_BOOL);
 			break;
 		case TOK_BOOL_OR:
-			prev_node = children_boolean[0] || children_boolean[1];
+			temp_node = new expression_node_leaf( std::make_pair( (*(bool*)ritter[1]->get_value() || *(bool*)ritter[0]->get_value())?(std::string("true")):(std::string("false")), TOK_BOOL ) );
+			temp_node->set_type(t_BOOL);
 			break;
 		case TOK_BIT_AND:
-			arithmetic_value = (*(int*)my_children_leafs[0]->get_value()) & (*(int*)my_children_leafs[1]->get_value());
+			arithmetic_value = (*(int*)ritter[1]->get_value()) & (*(int*)ritter[0]->get_value());
 			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
 			break;
 		case TOK_BIT_XOR:
-			arithmetic_value = (*(int*)my_children_leafs[0]->get_value()) ^ (*(int*)my_children_leafs[1]->get_value());
+			arithmetic_value = (*(int*)ritter[1]->get_value()) ^ (*(int*)ritter[0]->get_value());
 			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
 			break;
 		case TOK_BIT_OR:
-			arithmetic_value = (*(int*)my_children_leafs[0]->get_value()) | (*(int*)my_children_leafs[1]->get_value());
+			arithmetic_value = (*(int*)ritter[1]->get_value()) | (*(int*)ritter[0]->get_value());
 			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
 			break;
 		case TOK_MODULO:
-			arithmetic_value = (*(int*)my_children_leafs[0]->get_value()) % (*(int*)my_children_leafs[1]->get_value());
+			arithmetic_value = (*(int*)ritter[1]->get_value()) % (*(int*)ritter[0]->get_value());
 			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
 			break;
 		
 		case TOK_DIVIDE:
-			if(my_children_leafs[0]->get_type() == t_INT && my_children_leafs[1]->get_type() == t_INT){
-				arithmetic_value = (*(int*)my_children_leafs[0]->get_value()) / (*(int*)my_children_leafs[1]->get_value());
+			if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_INT){
+				arithmetic_value = (*(int*)ritter[1]->get_value()) / (*(int*)ritter[0]->get_value());
 				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
 			}
 			else{
-				if(my_children_leafs[0]->get_type() == t_DOUBLE && my_children_leafs[1]->get_type() == t_INT)
-					arithmetic_value = (*(double*)my_children_leafs[0]->get_value()) / (*(int*)my_children_leafs[1]->get_value());
-				else if(my_children_leafs[0]->get_type() == t_INT && my_children_leafs[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(int*)my_children_leafs[0]->get_value()) / (*(double*)my_children_leafs[1]->get_value());
-				else if(my_children_leafs[0]->get_type() == t_DOUBLE && my_children_leafs[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(double*)my_children_leafs[0]->get_value()) / (*(double*)my_children_leafs[1]->get_value());
+				if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_INT)
+					arithmetic_value = (*(double*)ritter[1]->get_value()) / (*(int*)ritter[0]->get_value());
+				else if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_DOUBLE)
+					arithmetic_value = (*(int*)ritter[1]->get_value()) / (*(double*)ritter[0]->get_value());
+				else if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_DOUBLE)
+					arithmetic_value = (*(double*)ritter[1]->get_value()) / (*(double*)ritter[0]->get_value());
 				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_DECIMAL) );
 			}
 			break;
 		case TOK_ASTERICK:
-			if(my_children_leafs[0]->get_type() == t_INT && my_children_leafs[1]->get_type() == t_INT){
-				arithmetic_value = (*(int*)my_children_leafs[0]->get_value()) * (*(int*)my_children_leafs[1]->get_value());
+			if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_INT){
+				arithmetic_value = (*(int*)ritter[1]->get_value()) * (*(int*)ritter[0]->get_value());
 				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
 			}
 			else{
-				if(my_children_leafs[0]->get_type() == t_DOUBLE && my_children_leafs[1]->get_type() == t_INT)
-					arithmetic_value = (*(double*)my_children_leafs[0]->get_value()) * (*(int*)my_children_leafs[1]->get_value());
-				else if(my_children_leafs[0]->get_type() == t_INT && my_children_leafs[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(int*)my_children_leafs[0]->get_value()) * (*(double*)my_children_leafs[1]->get_value());
-				else if(my_children_leafs[0]->get_type() == t_DOUBLE && my_children_leafs[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(double*)my_children_leafs[0]->get_value()) * (*(double*)my_children_leafs[1]->get_value());
+				if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_INT)
+					arithmetic_value = (*(double*)ritter[1]->get_value()) * (*(int*)ritter[0]->get_value());
+				else if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_DOUBLE)
+					arithmetic_value = (*(int*)ritter[1]->get_value()) * (*(double*)ritter[0]->get_value());
+				else if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_DOUBLE)
+					arithmetic_value = (*(double*)ritter[1]->get_value()) * (*(double*)ritter[0]->get_value());
 				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_DECIMAL) );
 			}
 			break;
 		case TOK_PLUS:
-			if(my_children_leafs[0]->get_type() == t_INT && my_children_leafs[1]->get_type() == t_INT){
-				arithmetic_value = (*(int*)my_children_leafs[0]->get_value()) + (*(int*)my_children_leafs[1]->get_value());
+			if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_INT){
+				arithmetic_value = (*(int*)ritter[1]->get_value()) + (*(int*)ritter[0]->get_value());
 				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
 				temp_node->set_type(t_INT);
 			}
 			else{
-				if(my_children_leafs[0]->get_type() == t_DOUBLE && my_children_leafs[1]->get_type() == t_INT)
-					arithmetic_value = (*(double*)my_children_leafs[0]->get_value()) + (*(int*)my_children_leafs[1]->get_value());
-				else if(my_children_leafs[0]->get_type() == t_INT && my_children_leafs[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(int*)my_children_leafs[0]->get_value()) + (*(double*)my_children_leafs[1]->get_value());
-				else if(my_children_leafs[0]->get_type() == t_DOUBLE && my_children_leafs[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(double*)my_children_leafs[0]->get_value()) + (*(double*)my_children_leafs[1]->get_value());
+				if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_INT)
+					arithmetic_value = (*(double*)ritter[1]->get_value()) + (*(int*)ritter[0]->get_value());
+				else if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_DOUBLE)
+					arithmetic_value = (*(int*)ritter[1]->get_value()) + (*(double*)ritter[0]->get_value());
+				else if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_DOUBLE)
+					arithmetic_value = (*(double*)ritter[1]->get_value()) + (*(double*)ritter[0]->get_value());
 				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_DECIMAL) );
 			}
 			break;
 		case TOK_MINUS:
-			if(my_children_leafs[0]->get_type() == t_INT && my_children_leafs[1]->get_type() == t_INT){
-				arithmetic_value = (*(int*)my_children_leafs[0]->get_value()) - (*(int*)my_children_leafs[1]->get_value());
+			if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_INT){
+				arithmetic_value = (*(int*)ritter[1]->get_value()) - (*(int*)ritter[0]->get_value());
 				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
 				temp_node->set_type(t_INT);
 			}
 			else{
-				if(my_children_leafs[0]->get_type() == t_DOUBLE && my_children_leafs[1]->get_type() == t_INT)
-					arithmetic_value = (*(double*)my_children_leafs[0]->get_value()) - (*(int*)my_children_leafs[1]->get_value());
-				else if(my_children_leafs[0]->get_type() == t_INT && my_children_leafs[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(int*)my_children_leafs[0]->get_value()) - (*(double*)my_children_leafs[1]->get_value());
-				else if(my_children_leafs[0]->get_type() == t_DOUBLE && my_children_leafs[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(double*)my_children_leafs[0]->get_value()) - (*(double*)my_children_leafs[1]->get_value());
+				if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_INT)
+					arithmetic_value = (*(double*)ritter[1]->get_value()) - (*(int*)ritter[0]->get_value());
+				else if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_DOUBLE)
+					arithmetic_value = (*(int*)ritter[1]->get_value()) - (*(double*)ritter[0]->get_value());
+				else if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_DOUBLE)
+					arithmetic_value = (*(double*)ritter[1]->get_value()) - (*(double*)ritter[0]->get_value());
 				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_DECIMAL) );
 			}
 			break;
 		case TOK_EQ:
-			if(my_children_leafs[0]->get_type() == t_INT)
-				prev_node = (*(int*)my_children_leafs[0]->get_value()) == (*(int*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_CSTRING)
-				prev_node = (*(std::string*)my_children_leafs[0]->get_value()) == (*(std::string*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_DOUBLE)
-				prev_node = (*(double*)my_children_leafs[0]->get_value()) == (*(double*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_BOOL)
-				prev_node = children_boolean[0] == children_boolean[1];
+			if(ritter[0]->get_type() == t_INT)
+				boolean_value = (*(int*)ritter[1]->get_value()) == (*(int*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_CSTRING)
+				boolean_value = (*(std::string*)ritter[1]->get_value()) == (*(std::string*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_DOUBLE)
+				boolean_value = (*(double*)ritter[1]->get_value()) == (*(double*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_BOOL)
+				boolean_value = *(bool*)ritter[1]->get_value() == *(bool*)ritter[0]->get_value();
+			else
+				break;
+			temp_node = new expression_node_leaf( std::make_pair( (boolean_value)?(std::string("true")):(std::string("false")), TOK_BOOL ) );
+			temp_node->set_type(t_BOOL);
 			break;
 		case TOK_NOTEQ:
-			if(my_children_leafs[0]->get_type() == t_INT)
-				prev_node = (*(int*)my_children_leafs[0]->get_value()) != (*(int*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_CSTRING)
-				prev_node = (*(std::string*)my_children_leafs[0]->get_value()) != (*(std::string*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_DOUBLE)
-				prev_node = (*(double*)my_children_leafs[0]->get_value()) != (*(double*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_BOOL)
-				prev_node = children_boolean[0] != children_boolean[1];
+			if(ritter[0]->get_type() == t_INT)
+				boolean_value = (*(int*)ritter[1]->get_value()) != (*(int*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_CSTRING)
+				boolean_value = (*(std::string*)ritter[1]->get_value()) != (*(std::string*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_DOUBLE)
+				boolean_value = (*(double*)ritter[1]->get_value()) != (*(double*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_BOOL)
+				boolean_value = *(bool*)ritter[1]->get_value() != *(bool*)ritter[0]->get_value();
+			else
+				break;
+			temp_node = new expression_node_leaf( std::make_pair( (boolean_value)?(std::string("true")):(std::string("false")), TOK_BOOL ) );
+			temp_node->set_type(t_BOOL);
 			break;
 		case TOK_NOTGT:
 		case TOK_LTEQ:
-			if(my_children_leafs[0]->get_type() == t_INT)
-				prev_node = (*(int*)my_children_leafs[0]->get_value()) <= (*(int*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_CSTRING)
-				prev_node = (*(std::string*)my_children_leafs[0]->get_value()) <= (*(std::string*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_DOUBLE)
-				prev_node = (*(double*)my_children_leafs[0]->get_value()) <= (*(double*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_BOOL)
-				prev_node = children_boolean[0] <= children_boolean[1];
+			if(ritter[0]->get_type() == t_INT)
+				boolean_value = (*(int*)ritter[1]->get_value()) <= (*(int*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_CSTRING)
+				boolean_value = (*(std::string*)ritter[1]->get_value()) <= (*(std::string*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_DOUBLE)
+				boolean_value = (*(double*)ritter[1]->get_value()) <= (*(double*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_BOOL)
+				boolean_value = *(bool*)ritter[1]->get_value() <= *(bool*)ritter[0]->get_value();
+			else
+				break;
+			temp_node = new expression_node_leaf( std::make_pair( (boolean_value)?(std::string("true")):(std::string("false")), TOK_BOOL ) );
+			temp_node->set_type(t_BOOL);
 			break;
 		case TOK_NOTLT:
 		case TOK_GTEQ:
-			if(my_children_leafs[0]->get_type() == t_INT)
-				prev_node = (*(int*)my_children_leafs[0]->get_value()) >= (*(int*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_CSTRING)
-				prev_node = (*(std::string*)my_children_leafs[0]->get_value()) >= (*(std::string*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_DOUBLE)
-				prev_node = (*(double*)my_children_leafs[0]->get_value()) >= (*(double*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_BOOL)
-				prev_node = children_boolean[0] >= children_boolean[1];
+			if(ritter[0]->get_type() == t_INT)
+				boolean_value = (*(int*)ritter[1]->get_value()) >= (*(int*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_CSTRING)
+				boolean_value = (*(std::string*)ritter[1]->get_value()) >= (*(std::string*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_DOUBLE)
+				boolean_value = (*(double*)ritter[1]->get_value()) >= (*(double*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_BOOL)
+				boolean_value = *(bool*)ritter[1]->get_value() >= *(bool*)ritter[0]->get_value();
+			else
+				break;
+			temp_node = new expression_node_leaf( std::make_pair( (boolean_value)?(std::string("true")):(std::string("false")), TOK_BOOL ) );
+			temp_node->set_type(t_BOOL);
 			break;
 		case TOK_LT:
-			if(my_children_leafs[0]->get_type() == t_INT)
-				prev_node = (*(int*)my_children_leafs[0]->get_value()) < (*(int*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_CSTRING)
-				prev_node = (*(std::string*)my_children_leafs[0]->get_value()) < (*(std::string*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_DOUBLE)
-				prev_node = (*(double*)my_children_leafs[0]->get_value()) < (*(double*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_BOOL)
-				prev_node = children_boolean[0] < children_boolean[1];
+			if(ritter[0]->get_type() == t_INT)
+				boolean_value = (*(int*)ritter[1]->get_value()) < (*(int*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_CSTRING)
+				boolean_value = (*(std::string*)ritter[1]->get_value()) < (*(std::string*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_DOUBLE)
+				boolean_value = (*(double*)ritter[1]->get_value()) < (*(double*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_BOOL)
+				boolean_value = *(bool*)ritter[1]->get_value() < *(bool*)ritter[0]->get_value();
+			else
+				break;
+			temp_node = new expression_node_leaf( std::make_pair( (boolean_value)?(std::string("true")):(std::string("false")), TOK_BOOL ) );
+			temp_node->set_type(t_BOOL);
 			break;
 		case TOK_GT:
-			if(my_children_leafs[0]->get_type() == t_INT)
-				prev_node = (*(int*)my_children_leafs[0]->get_value()) > (*(int*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_CSTRING)
-				prev_node = (*(std::string*)my_children_leafs[0]->get_value()) > (*(std::string*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_DOUBLE)
-				prev_node = (*(double*)my_children_leafs[0]->get_value()) > (*(double*)my_children_leafs[1]->get_value());
-			else if(my_children_leafs[0]->get_type() == t_BOOL)
-				prev_node = children_boolean[0] > children_boolean[1];
+			if(ritter[0]->get_type() == t_INT)
+				boolean_value = (*(int*)ritter[1]->get_value()) > (*(int*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_CSTRING)
+				boolean_value = (*(std::string*)ritter[1]->get_value()) > (*(std::string*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_DOUBLE)
+				boolean_value = (*(double*)ritter[1]->get_value()) > (*(double*)ritter[0]->get_value());
+			else if(ritter[0]->get_type() == t_BOOL)
+				boolean_value = *(bool*)ritter[1]->get_value() > *(bool*)ritter[0]->get_value();
+			else
+				break;
+			temp_node = new expression_node_leaf( std::make_pair( (boolean_value)?(std::string("true")):(std::string("false")), TOK_BOOL ) );
+			temp_node->set_type(t_BOOL);
 			break;
 		}
+		children_leafs.pop_back();
+		children_leafs.pop_back();
 	}
 
 	if(temp_node != NULL){

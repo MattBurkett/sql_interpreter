@@ -4,7 +4,6 @@
 class execute : public visitor
 {
 private:
-	bool prev_node;
 	std::vector<table::element> current_row;
 	std::vector<std::vector<table::element>> query_rows;
 	std::vector<expression_node_leaf*> children_leafs;
