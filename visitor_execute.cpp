@@ -69,7 +69,9 @@ void execute::visit(expression_node_branch* ast_node)
 	for(auto e : ast_node->get_children())
 		e->accept(this);
 
-	int arithmetic_value;
+	int arithmetic_int;
+	double arithmetic_double;
+
 	bool boolean_value;
 	expression_node_leaf* temp_node = NULL;
 	auto ritter = children_leafs.rbegin();
@@ -81,8 +83,8 @@ void execute::visit(expression_node_branch* ast_node)
 			temp_node->set_type(t_BOOL);
 			break;
 		case TOK_BIT_NOT:
-			arithmetic_value = ~*(int*)ritter[0]->get_value();
-			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
+			arithmetic_int = ~*(int*)ritter[0]->get_value();
+			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_int), TOK_INTEGER) );
 			break;
 		}
 		children_leafs.pop_back();
@@ -98,82 +100,92 @@ void execute::visit(expression_node_branch* ast_node)
 			temp_node->set_type(t_BOOL);
 			break;
 		case TOK_BIT_AND:
-			arithmetic_value = (*(int*)ritter[1]->get_value()) & (*(int*)ritter[0]->get_value());
-			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
+			arithmetic_int = (*(int*)ritter[1]->get_value()) & (*(int*)ritter[0]->get_value());
+			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_int), TOK_INTEGER) );
+			temp_node->set_type(t_INT);
 			break;
 		case TOK_BIT_XOR:
-			arithmetic_value = (*(int*)ritter[1]->get_value()) ^ (*(int*)ritter[0]->get_value());
-			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
+			arithmetic_int = (*(int*)ritter[1]->get_value()) ^ (*(int*)ritter[0]->get_value());
+			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_int), TOK_INTEGER) );
+			temp_node->set_type(t_INT);
 			break;
 		case TOK_BIT_OR:
-			arithmetic_value = (*(int*)ritter[1]->get_value()) | (*(int*)ritter[0]->get_value());
-			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
+			arithmetic_int = (*(int*)ritter[1]->get_value()) | (*(int*)ritter[0]->get_value());
+			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_int), TOK_INTEGER) );
+			temp_node->set_type(t_INT);
 			break;
 		case TOK_MODULO:
-			arithmetic_value = (*(int*)ritter[1]->get_value()) % (*(int*)ritter[0]->get_value());
-			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
+			arithmetic_int = (*(int*)ritter[1]->get_value()) % (*(int*)ritter[0]->get_value());
+			temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_int), TOK_INTEGER) );
+			temp_node->set_type(t_INT);
 			break;
 		
 		case TOK_DIVIDE:
-			if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_INT){
-				arithmetic_value = (*(int*)ritter[1]->get_value()) / (*(int*)ritter[0]->get_value());
-				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
+			if(ritter[1]->get_type() == t_INT && ritter[0]->get_type() == t_INT){
+				arithmetic_int = (*(int*)ritter[1]->get_value()) / (*(int*)ritter[0]->get_value());
+				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_int), TOK_INTEGER) );
+				temp_node->set_type(t_INT);
 			}
 			else{
-				if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_INT)
-					arithmetic_value = (*(double*)ritter[1]->get_value()) / (*(int*)ritter[0]->get_value());
-				else if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(int*)ritter[1]->get_value()) / (*(double*)ritter[0]->get_value());
-				else if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(double*)ritter[1]->get_value()) / (*(double*)ritter[0]->get_value());
-				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_DECIMAL) );
+				if(ritter[1]->get_type() == t_DOUBLE && ritter[0]->get_type() == t_INT)
+					arithmetic_double = (*(double*)ritter[1]->get_value()) / (*(int*)ritter[0]->get_value());
+				else if(ritter[1]->get_type() == t_INT && ritter[0]->get_type() == t_DOUBLE)
+					arithmetic_double = (*(int*)ritter[1]->get_value()) / (*(double*)ritter[0]->get_value());
+				else if(ritter[1]->get_type() == t_DOUBLE && ritter[0]->get_type() == t_DOUBLE)
+					arithmetic_double = (*(double*)ritter[1]->get_value()) / (*(double*)ritter[0]->get_value());
+				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_double), TOK_DECIMAL) );
+				temp_node->set_type(t_DOUBLE);
 			}
 			break;
 		case TOK_ASTERICK:
-			if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_INT){
-				arithmetic_value = (*(int*)ritter[1]->get_value()) * (*(int*)ritter[0]->get_value());
-				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
+			if(ritter[1]->get_type() == t_INT && ritter[0]->get_type() == t_INT){
+				arithmetic_int = (*(int*)ritter[1]->get_value()) * (*(int*)ritter[0]->get_value());
+				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_int), TOK_INTEGER) );
+				temp_node->set_type(t_INT);
 			}
 			else{
-				if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_INT)
-					arithmetic_value = (*(double*)ritter[1]->get_value()) * (*(int*)ritter[0]->get_value());
-				else if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(int*)ritter[1]->get_value()) * (*(double*)ritter[0]->get_value());
-				else if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(double*)ritter[1]->get_value()) * (*(double*)ritter[0]->get_value());
-				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_DECIMAL) );
+				if(ritter[1]->get_type() == t_DOUBLE && ritter[0]->get_type() == t_INT)
+					arithmetic_double = (*(double*)ritter[1]->get_value()) * (*(int*)ritter[0]->get_value());
+				else if(ritter[1]->get_type() == t_INT && ritter[0]->get_type() == t_DOUBLE)
+					arithmetic_double = (*(int*)ritter[1]->get_value()) * (*(double*)ritter[0]->get_value());
+				else if(ritter[1]->get_type() == t_DOUBLE && ritter[0]->get_type() == t_DOUBLE)
+					arithmetic_double = (*(double*)ritter[1]->get_value()) * (*(double*)ritter[0]->get_value());
+				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_double), TOK_DECIMAL) );
+				temp_node->set_type(t_DOUBLE);
 			}
 			break;
 		case TOK_PLUS:
-			if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_INT){
-				arithmetic_value = (*(int*)ritter[1]->get_value()) + (*(int*)ritter[0]->get_value());
-				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
+			if(ritter[1]->get_type() == t_INT && ritter[0]->get_type() == t_INT){
+				arithmetic_int = (*(int*)ritter[1]->get_value()) + (*(int*)ritter[0]->get_value());
+				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_int), TOK_INTEGER) );
 				temp_node->set_type(t_INT);
 			}
 			else{
-				if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_INT)
-					arithmetic_value = (*(double*)ritter[1]->get_value()) + (*(int*)ritter[0]->get_value());
-				else if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(int*)ritter[1]->get_value()) + (*(double*)ritter[0]->get_value());
-				else if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(double*)ritter[1]->get_value()) + (*(double*)ritter[0]->get_value());
-				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_DECIMAL) );
+				if(ritter[1]->get_type() == t_DOUBLE && ritter[0]->get_type() == t_INT)
+					arithmetic_double = (*(double*)ritter[1]->get_value()) + (*(int*)ritter[0]->get_value());
+				else if(ritter[1]->get_type() == t_INT && ritter[0]->get_type() == t_DOUBLE)
+					arithmetic_double = (*(int*)ritter[1]->get_value()) + (*(double*)ritter[0]->get_value());
+				else if(ritter[1]->get_type() == t_DOUBLE && ritter[0]->get_type() == t_DOUBLE)
+					arithmetic_double = (*(double*)ritter[1]->get_value()) + (*(double*)ritter[0]->get_value());
+				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_double), TOK_DECIMAL) );
+				temp_node->set_type(t_DOUBLE);
 			}
 			break;
 		case TOK_MINUS:
-			if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_INT){
-				arithmetic_value = (*(int*)ritter[1]->get_value()) - (*(int*)ritter[0]->get_value());
-				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_INTEGER) );
+			if(ritter[1]->get_type() == t_INT && ritter[0]->get_type() == t_INT){
+				arithmetic_int = (*(int*)ritter[1]->get_value()) - (*(int*)ritter[0]->get_value());
+				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_int), TOK_INTEGER) );
 				temp_node->set_type(t_INT);
 			}
 			else{
-				if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_INT)
-					arithmetic_value = (*(double*)ritter[1]->get_value()) - (*(int*)ritter[0]->get_value());
-				else if(ritter[0]->get_type() == t_INT && ritter[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(int*)ritter[1]->get_value()) - (*(double*)ritter[0]->get_value());
-				else if(ritter[0]->get_type() == t_DOUBLE && ritter[1]->get_type() == t_DOUBLE)
-					arithmetic_value = (*(double*)ritter[1]->get_value()) - (*(double*)ritter[0]->get_value());
-				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_value), TOK_DECIMAL) );
+				if(ritter[1]->get_type() == t_DOUBLE && ritter[0]->get_type() == t_INT)
+					arithmetic_double = (*(double*)ritter[1]->get_value()) - (*(int*)ritter[0]->get_value());
+				else if(ritter[1]->get_type() == t_INT && ritter[0]->get_type() == t_DOUBLE)
+					arithmetic_double = (*(int*)ritter[1]->get_value()) - (*(double*)ritter[0]->get_value());
+				else if(ritter[1]->get_type() == t_DOUBLE && ritter[0]->get_type() == t_DOUBLE)
+					arithmetic_double = (*(double*)ritter[1]->get_value()) - (*(double*)ritter[0]->get_value());
+				temp_node = new expression_node_leaf( std::make_pair(std::to_string(arithmetic_double), TOK_DECIMAL) );
+				temp_node->set_type(t_DOUBLE);
 			}
 			break;
 		case TOK_EQ:
