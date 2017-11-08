@@ -4,17 +4,13 @@
 #include <fstream>
 #include <iostream>
 
-
-lexer::lexer()
+lexer::lexer(char* file_name)
 {
-	file_input = false;
-	statement_file_name = "";
-}
-
-lexer::lexer(std::string file_name)
-{
-	file_input = true;
-	statement_file_name = file_name;
+	if(file_input = (file_name != NULL))
+		statement_file_name = std::string(file_name);
+	else
+		statement_file_name = std::string("");
+	
 }
 
 lexer::~lexer()

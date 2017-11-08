@@ -18,7 +18,8 @@ private:
 	void strip_white_space(char *&ptr);
 public:
 	lexer();
-	lexer(std::string file_name);
+	lexer(char* file_name);
+	//lexer(std::string file_name);
 	~lexer();
 
 	std::vector<std::pair<std::string, token_id>> tokenize();
