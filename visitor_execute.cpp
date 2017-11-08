@@ -8,10 +8,13 @@
 table execute::visit_static(ast ast_tree, tables sql_tables)
 {
 	execute vis;
+	vis.has_where = false;
 	for ( auto row : sql_tables.get_query_table().get_rows()){
 		vis.current_row = row;
 		vis.children_leafs.clear();
 		vis.visitor::visit(ast_tree);
+		if(!vis.has_where)
+			vis.query_rows.push_back(row);
 	}
 	return table(vis.query_rows, sql_tables.get_query_table().get_header());
 }
@@ -23,6 +26,7 @@ void execute::visit(group_by_clause* ast_node) {}
 
 void execute::visit(where_predicate* ast_node)
 {
+	has_where = true;
 	for(auto e : ast_node->get_children())
 		e->accept(this);
 	if(*(bool*)children_leafs.back()->get_value() == true)

@@ -7,6 +7,7 @@ private:
 	std::vector<table::element> current_row;
 	std::vector<std::vector<table::element>> query_rows;
 	std::vector<expression_node_leaf*> children_leafs;
+	bool has_where;
 public:
 	static table visit_static(ast ast_tree, tables sql_tables);	
 
