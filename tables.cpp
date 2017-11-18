@@ -41,6 +41,8 @@ std::vector<table::field> table::get_header()
 
 void table::sort(std::string name, bool ascending)
 {
+	std::cout << "sorting on: " << name << "\n";
+	std::cout << "	ascending: " << ascending << "\n";
 	auto ittr = header.begin();
 	for(; ittr < header.end(); ittr++)
 		if(ittr->name == name)
@@ -52,16 +54,16 @@ void table::sort(std::string name, bool ascending)
 		{
 			switch(ittr->type){
 			case t_INT:
-				return (row1[index].data.i < row2[index].data.i) == ascending;
+				return (ascending?(row1[index].data.i < row2[index].data.i):(row2[index].data.i < row1[index].data.i));
 				break;
 			case t_CSTRING:
-				return (strcmp(row1[index].data.s, row2[index].data.s) <= 0) == ascending;
+				return (ascending?(strcmp(row1[index].data.s, row2[index].data.s) < 0):(strcmp(row2[index].data.s, row1[index].data.s) < 0));
 				break;
 			case t_DOUBLE:
-				return (row1[index].data.d < row2[index].data.d) == ascending;
+				return (ascending?(row1[index].data.d < row2[index].data.d):(row2[index].data.d < row1[index].data.d));
 				break;
 			case t_BOOL:
-				return (row1[index].data.b < row2[index].data.b) == ascending;
+				return (ascending?(row1[index].data.b < row2[index].data.b):(row2[index].data.b < row1[index].data.b));
 				break;
 			}
 			return true;

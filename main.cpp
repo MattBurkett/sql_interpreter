@@ -16,9 +16,9 @@
 int main(int argc, char* argv[])
 {
 	const char database_dir[] = "databases/";
-	tables sql_tables(database_dir);
 	int parse_number = 1;
-
+	
+	tables sql_tables(database_dir);
 	lexer sql_lexer = lexer(argv[1]);
 
 	while(sql_lexer.load_statement()){
