@@ -41,8 +41,6 @@ std::vector<table::field> table::get_header()
 
 void table::sort(std::string name, bool ascending)
 {
-	std::cout << "sorting on: " << name << "\n";
-	std::cout << "	ascending: " << ascending << "\n";
 	auto ittr = header.begin();
 	for(; ittr < header.end(); ittr++)
 		if(ittr->name == name)
